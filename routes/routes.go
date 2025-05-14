@@ -17,5 +17,6 @@ func Setup(app *fiber.App) {
 	api := app.Group("/api", middleware.Protected())
 
 	api.Get("/protect", controllers.Hello)
+	api.Put("/presigned_url", controllers.GetUploadUrl)
 	// Person (gia phả)
 }
