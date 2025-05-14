@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  backend:
+    # image: trungnghia1996/go-fiber-api:deploy
+    build: .
+    container_name: go-fiber-api
+    ports:
+      - 4000:4000
+    environment:
+      MONGO_URI: mongodb+srv://admin:cr969bp6x6@test.nlwvliy.mongodb.net/?retryWrites=true&w=majority&appName=test
+      MONGO_NAME: test2
+      JWT_SECRET: test
+      PORT: 4000
+      MINIO_ACCESS_KEY: al8KsxHAbLtfNVsX
+      MINIO_SECRET_KEY: noWZ40KlvEcioZcPhLmMZFcPSkdeuX0K
+      MINIO_ENDPOINT: image.nghia.myds.me
+      MINIO_BUCKET: test
+      MINIO_SSL: true
+    restart: unless-stopped

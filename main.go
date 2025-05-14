@@ -15,9 +15,17 @@ import (
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
+	// err := godotenv.Load()
+	// if err != nil {
+	// 	log.Fatal("Error loading .env file")
+	// }
+	// Chỉ load .env nếu chạy local (tức là .env tồn tại)
+	if _, err := os.Stat(".env"); err == nil {
+		if err := godotenv.Load(); err != nil {
+			log.Println("Error loading .env file")
+		} else {
+			log.Println("Loaded .env file")
+		}
 	}
 
 	config.ConnectDB()
