@@ -58,16 +58,33 @@ func CreatePerson(c *fiber.Ctx) error {
 
 // ✏️ CẬP NHẬT NGƯỜI THEO ID
 /*
-@route   PUT /api/persons/:id
+@route   PUT /api/persons?id=
 @body    Giống như CreatePerson (JSON)
 */
 func UpdatePerson(c *fiber.Ctx) error {
-	idParam := c.Params("id")
-	personID, err := primitive.ObjectIDFromHex(idParam)
+	var updateData map[string]interface{}
+	if err := c.BodyParser(&updateData); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Invalid input",
+			Data:    nil,
+		})
+	}
+
+	idValue, ok := updateData["id"].(string)
+	if !ok || idValue == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Missing or invalid 'id' field",
+			Data:    nil,
+		})
+	}
+
+	personID, err := primitive.ObjectIDFromHex(idValue)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Invalid ID",
+			Message: "Invalid ID format",
 			Data:    nil,
 		})
 	}
@@ -89,17 +106,9 @@ func UpdatePerson(c *fiber.Ctx) error {
 		})
 	}
 
-	var updateData map[string]interface{}
-	if err := c.BodyParser(&updateData); err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
-			Status:  "error",
-			Message: "Invalid input",
-			Data:    nil,
-		})
-	}
-
 	updatedPerson := *existingPerson
 
+	// Cập nhật các trường từ body
 	if name, ok := updateData["name"].(string); ok {
 		updatedPerson.Name = name
 	}
@@ -181,11 +190,19 @@ func UpdatePerson(c *fiber.Ctx) error {
 
 // ❌ XOÁ NGƯỜI THEO ID VÀ CÁC MỐI QUAN HỆ LIÊN QUAN
 /*
-@route   DELETE /api/persons/:id
+@route   DELETE /api/persons?id=
 @desc    Xóa người và cập nhật tất cả các mối quan hệ liên quan
 */
 func DeletePerson(c *fiber.Ctx) error {
-	idParam := c.Params("id")
+	idParam := c.Query("id")
+	if idParam == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "ID query parameter is required",
+			Data:    nil,
+		})
+	}
+
 	personID, err := primitive.ObjectIDFromHex(idParam)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
@@ -247,11 +264,18 @@ func SearchPersons(c *fiber.Ctx) error {
 
 // 👨‍👩‍👧‍👦 LẤY THÔNG TIN GIA ĐÌNH
 /*
-@route   GET /api/persons/:id/family
+@route   GET /api/persons/family?id=
 @return  repositories.FamilyInfo
 */
 func GetFamilyInfo(c *fiber.Ctx) error {
-	idParam := c.Params("id")
+	idParam := c.Query("id")
+	if idParam == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "ID query parameter is required",
+			Data:    nil,
+		})
+	}
 	personID, err := primitive.ObjectIDFromHex(idParam)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
@@ -288,11 +312,18 @@ func GetFamilyInfo(c *fiber.Ctx) error {
 
 // 🔍 LẤY THÔNG TIN CHI TIẾT NGƯỜI THEO ID
 /*
-@route   GET /api/persons/:id
+@route   GET /api/persons?id=
 @return  models.Person
 */
 func GetPersonByID(c *fiber.Ctx) error {
-	idParam := c.Params("id")
+	idParam := c.Query("id")
+	if idParam == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "ID query parameter is required",
+			Data:    nil,
+		})
+	}
 	personID, err := primitive.ObjectIDFromHex(idParam)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{

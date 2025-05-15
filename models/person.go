@@ -17,6 +17,14 @@ type Person struct {
 	// Ví dụ: "Ba Lúa"
 	Alias string `bson:"alias,omitempty" json:"alias,omitempty"`
 
+	// Tên đã chuẩn hóa không dấu (để tìm kiếm)
+	// Ví dụ: "nguyen van a"
+	NameNormalized string `bson:"name_normalized,omitempty" json:"name_normalized,omitempty"`
+
+	// Bí danh đã chuẩn hóa không dấu (để tìm kiếm)
+	// Ví dụ: "ba lua"
+	AliasNormalized string `bson:"alias_normalized,omitempty" json:"alias_normalized,omitempty"`
+
 	// Giới tính: "male" (nam), "female" (nữ)
 	// Ví dụ: "male"
 	Gender string `bson:"gender" json:"gender"`

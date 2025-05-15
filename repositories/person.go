@@ -2,12 +2,11 @@ package repositories
 
 import (
 	"context"
+	"go-fiber-api/models" // Thay bằng tên module của bạn
 	"strings"
 	"sync"
 	"time"
 	"unicode"
-
-	"go-fiber-api/models" // Thay bằng tên module của bạn
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -30,7 +29,8 @@ func (r *PersonRepository) Create(ctx context.Context, person *models.Person) er
 	now := primitive.NewDateTimeFromTime(time.Now())
 	person.CreatedAt = now
 	person.UpdatedAt = now
-
+	person.NameNormalized = normalizeText(person.Name)
+	person.AliasNormalized = normalizeText(person.Alias)
 	res, err := r.Collection.InsertOne(ctx, person)
 	if err != nil {
 		return err
@@ -153,6 +153,8 @@ func (r *PersonRepository) GetFamilyInfo(ctx context.Context, personID primitive
 
 // ====== CẬP NHẬT ======
 func (r *PersonRepository) Update(ctx context.Context, person *models.Person) error {
+	person.NameNormalized = normalizeText(person.Name)
+	person.AliasNormalized = normalizeText(person.Alias)
 	person.UpdatedAt = primitive.NewDateTimeFromTime(time.Now())
 
 	filter := bson.M{"_id": person.ID}
@@ -255,13 +257,13 @@ func (r *PersonRepository) SearchByNameOrAlias(ctx context.Context, keyword stri
 	filter := bson.M{
 		"$or": []bson.M{
 			{
-				"name": bson.M{
+				"name_normalized": bson.M{
 					"$regex":   normalizedKeyword,
 					"$options": "i",
 				},
 			},
 			{
-				"alias": bson.M{
+				"alias_normalized": bson.M{
 					"$regex":   normalizedKeyword,
 					"$options": "i",
 				},
