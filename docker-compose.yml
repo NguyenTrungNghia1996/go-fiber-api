@@ -2,14 +2,12 @@ version: '3.8'
 
 services:
   backend:
-    # image: trungnghia1996/go-fiber-api:deploy
-    build: .
-    container_name: go-fiber-api
+    image: trungnghia1996/go-fiber-api:latest
     ports:
       - 4000:4000
     environment:
       MONGO_URI: mongodb+srv://admin:cr969bp6x6@test.nlwvliy.mongodb.net/?retryWrites=true&w=majority&appName=test
-      MONGO_NAME: test2
+      MONGO_NAME: test
       JWT_SECRET: test
       PORT: 4000
       MINIO_ACCESS_KEY: al8KsxHAbLtfNVsX
