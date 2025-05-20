@@ -17,11 +17,11 @@ func Setup(app *fiber.App) {
 	api.Put("/presigned_url", controllers.GetUploadUrl)
 
 	// Person routes
-	persons := api.Group("/persons")
-	persons.Post("/", controllers.CreatePerson)
-	persons.Get("/search", controllers.SearchPersons)
-	persons.Get("/family", controllers.GetFamilyInfo)
-	persons.Get("/", controllers.GetPersonByID)
-	persons.Put("/", controllers.UpdatePerson)
-	persons.Delete("/", controllers.DeletePerson)
+	// persons := api.Group("/persons")
+	// persons.Post("/", controllers.CreatePerson)
+	// persons.Get("/search", controllers.SearchPersons)
+	// persons.Get("/family", controllers.GetFamilyInfo)
+	// persons.Get("/", controllers.GetPersonByID)
+	// persons.Put("/", controllers.UpdatePerson)
+	// persons.Delete("/", controllers.DeletePerson)
 }
