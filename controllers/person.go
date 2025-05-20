@@ -357,3 +357,28 @@ func GetPersonByID(c *fiber.Ctx) error {
 		Data:    person,
 	})
 }
+
+// 📋 LẤY DANH SÁCH TẤT CẢ NGƯỜI
+/*
+@route   GET /api/persons/all
+@return  []models.Person
+*/
+func GetAllPersons(c *fiber.Ctx) error {
+	repo := repositories.NewPersonRepository(config.DB)
+	limit := int64(100) // or any default value you want
+	offset := int64(0)  // start from the beginning
+	persons, err := repo.GetAll(context.TODO(), limit, offset)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Failed to fetch persons",
+			Data:    nil,
+		})
+	}
+
+	return c.JSON(models.APIResponse{
+		Status:  "success",
+		Message: "All persons retrieved",
+		Data:    persons,
+	})
+}

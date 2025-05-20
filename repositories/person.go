@@ -325,6 +325,29 @@ func (r *PersonRepository) syncRelationships(ctx context.Context, person *models
 	return nil
 }
 
+func (r *PersonRepository) GetAll(ctx context.Context, limit int64, skip int64) ([]models.Person, error) {
+	findOptions := options.Find()
+	if limit > 0 {
+		findOptions.SetLimit(limit)
+	}
+	if skip > 0 {
+		findOptions.SetSkip(skip)
+	}
+	findOptions.SetSort(bson.M{"created_at": -1})
+
+	cursor, err := r.Collection.Find(ctx, bson.M{}, findOptions)
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(ctx)
+
+	var persons []models.Person
+	if err := cursor.All(ctx, &persons); err != nil {
+		return nil, err
+	}
+	return persons, nil
+}
+
 // ====== HỖ TRỢ TÌM KIẾM KHÔNG DẤU ======
 func normalizeText(input string) string {
 	input = strings.ToLower(input)
