@@ -8,6 +8,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 // Tìm user theo username
@@ -27,7 +28,7 @@ func CreateUser(user *models.User) error {
 	return err
 }
 
-// Kiểm tra username đã tồn tại
+// Kiểm tra Username already exists
 func IsUsernameExists(username string) (bool, error) {
 	count, err := config.DB.Collection("users").CountDocuments(context.TODO(), bson.M{"username": username})
 	if err != nil {
@@ -43,7 +44,14 @@ func GetUsersByRole(role string) ([]models.User, error) {
 		filter["role"] = role
 	}
 
-	cursor, err := config.DB.Collection("users").Find(context.TODO(), filter)
+	// Projection: loại bỏ trường password
+	projection := bson.M{
+		"password": 0, // 0 = không lấy trường này
+	}
+
+	opts := options.Find().SetProjection(projection)
+
+	cursor, err := config.DB.Collection("users").Find(context.TODO(), filter, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -57,6 +65,7 @@ func GetUsersByRole(role string) ([]models.User, error) {
 		}
 		users = append(users, user)
 	}
+
 	return users, nil
 }
 func UpdateUserPersonID(id string, personID string) error {

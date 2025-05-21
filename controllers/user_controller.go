@@ -24,38 +24,54 @@ func CreateUser(c *fiber.Ctx) error {
 	if err := c.BodyParser(&user); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Dữ liệu không hợp lệ",
+			Message: "Invalid data",
 			Data:    nil,
 		})
 	}
 
+	// Kiểm tra username đã tồn tại chưa
 	exists, err := repositories.IsUsernameExists(user.Username)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Lỗi kiểm tra username",
+			Message: "Error checking username",
 			Data:    nil,
 		})
 	}
 	if exists {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Username đã tồn tại",
+			Message: "Username already exists",
 			Data:    nil,
 		})
 	}
 
+	// Hash password
+	hashedPassword, err := utils.HashPassword(user.Password)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
+			Status:  "error",
+			Message: "Failed to hash password",
+			Data:    nil,
+		})
+	}
+	user.Password = hashedPassword
+
+	// Tạo user
 	if err := repositories.CreateUser(&user); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Không thể tạo user",
+			Message: "Unable to create user",
 			Data:    nil,
 		})
 	}
 
+	// Xoá password trước khi trả về frontend
+	user.Password = ""
+
 	return c.JSON(models.APIResponse{
 		Status:  "success",
-		Message: "Tạo user thành công",
+		Message: "Created user successfully",
 		Data:    user,
 	})
 }
@@ -69,14 +85,14 @@ func GetUsersByRole(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Không thể lấy danh sách user",
+			Message: "Cannot get user list",
 			Data:    nil,
 		})
 	}
 
 	return c.JSON(models.APIResponse{
 		Status:  "success",
-		Message: "Lấy danh sách user thành công",
+		Message: "Get user list successfully",
 		Data:    users,
 	})
 }
@@ -97,7 +113,7 @@ func UpdateUserPersonID(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil || body.ID == "" || body.PersonID == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Dữ liệu không hợp lệ",
+			Message: "Invalid data",
 			Data:    nil,
 		})
 	}
@@ -106,14 +122,14 @@ func UpdateUserPersonID(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Không thể cập nhật PersonID",
+			Message: "Unable to update PersonID",
 			Data:    nil,
 		})
 	}
 
 	return c.JSON(models.APIResponse{
 		Status:  "success",
-		Message: "Đã cập nhật PersonID thành công",
+		Message: "PersonID has been updated successfully.g",
 		Data:    nil,
 	})
 }
@@ -137,7 +153,7 @@ func ChangeUserPassword(c *fiber.Ctx) error {
 	if err := c.BodyParser(&body); err != nil || body.ID == "" || body.OldPassword == "" || body.NewPassword == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Dữ liệu không hợp lệ",
+			Message: "Invalid data",
 			Data:    nil,
 		})
 	}
@@ -146,7 +162,7 @@ func ChangeUserPassword(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Không tìm thấy người dùng",
+			Message: "User not found",
 			Data:    nil,
 		})
 	}
@@ -154,7 +170,7 @@ func ChangeUserPassword(c *fiber.Ctx) error {
 	if !utils.CheckPasswordHash(body.OldPassword, user.Password) {
 		return c.Status(fiber.StatusUnauthorized).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Mật khẩu cũ không chính xác",
+			Message: "Old password is incorrect",
 			Data:    nil,
 		})
 	}
@@ -163,7 +179,7 @@ func ChangeUserPassword(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Không thể mã hóa mật khẩu",
+			Message: "Unable to encrypt passwordu",
 			Data:    nil,
 		})
 	}
@@ -172,14 +188,14 @@ func ChangeUserPassword(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(models.APIResponse{
 			Status:  "error",
-			Message: "Không thể cập nhật mật khẩu",
+			Message: "Unable to update password",
 			Data:    nil,
 		})
 	}
 
 	return c.JSON(models.APIResponse{
 		Status:  "success",
-		Message: "Đổi mật khẩu thành công",
+		Message: "Password changed successfully",
 		Data:    nil,
 	})
 }
