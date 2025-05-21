@@ -13,44 +13,39 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// Biến toàn cục để truy cập MongoDB
 var DB *mongo.Database
 
-// LoadDotEnv tìm và load file .env từ thư mục hiện tại lên các thư mục cha
 func LoadDotEnv() error {
 	dir, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-
 	for {
 		envPath := filepath.Join(dir, ".env")
 		if _, err := os.Stat(envPath); err == nil {
-			// Tìm thấy file .env
 			return godotenv.Load(envPath)
 		}
-
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			break // Đã lên tới root folder rồi
+			break
 		}
 		dir = parent
 	}
-
 	return fmt.Errorf(".env not found in any parent directory")
 }
 
 func ConnectDB() {
-	// Cố gắng load .env nếu có
+	start := time.Now()
+
 	if err := LoadDotEnv(); err != nil {
 		log.Println("⚠️ Không tìm thấy .env, sẽ dùng biến môi trường hệ thống nếu có")
 	} else {
 		log.Println("✅ Đã load file .env thành công")
 	}
 
-	mongoURI := os.Getenv("MONGO_URI")
+	mongoURI := os.Getenv("MONGO_URL")
 	if mongoURI == "" {
-		log.Fatal("❌ MONGO_URI không được để trống")
+		log.Fatal("❌ MONGO_URL không được để trống")
 	}
 
 	mongoName := os.Getenv("MONGO_NAME")
@@ -78,5 +73,5 @@ func ConnectDB() {
 	}
 
 	DB = client.Database(mongoName)
-	log.Println("✅ Kết nối MongoDB thành công")
+	log.Printf("✅ Kết nối MongoDB thành công sau %v\n", time.Since(start))
 }

@@ -12,10 +12,11 @@ import (
 func Setup(app *fiber.App, db *mongo.Database) {
 	// Auth
 	app.Post("/login", controllers.Login)
-
+	app.Get("/test", controllers.Hello)
 	// Protected API group
 	api := app.Group("/api", middleware.Protected())
 
+	api.Get("/test2", controllers.Hello)
 	// Upload URL
 	api.Put("/presigned_url", controllers.GetUploadUrl)
 
