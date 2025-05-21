@@ -36,6 +36,7 @@ func (r *SubjectRepository) Create(ctx context.Context, subject *models.Subject)
 }
 
 // Update only sent fields
+// Note: is_active được cập nhật bất kể true hay false
 func (r *SubjectRepository) Update(ctx context.Context, id primitive.ObjectID, updateData *models.Subject) error {
 	update := bson.M{}
 
@@ -49,15 +50,15 @@ func (r *SubjectRepository) Update(ctx context.Context, id primitive.ObjectID, u
 	if updateData.Description != "" {
 		update["description"] = updateData.Description
 	}
+
+	// luôn cập nhật updated_at
 	update["updated_at"] = time.Now()
 
-	// is_active must be explicitly set
-	if updateData.IsActive || !updateData.IsActive {
-		update["is_active"] = updateData.IsActive
-	}
+	// cập nhật is_active dù true hay false
+	update["is_active"] = updateData.IsActive
 
+	// Nếu không có trường dữ liệu nào ngoài updated_at thì bỏ qua update
 	if len(update) == 1 && update["updated_at"] != nil {
-		// No real data to update
 		return nil
 	}
 
@@ -65,7 +66,7 @@ func (r *SubjectRepository) Update(ctx context.Context, id primitive.ObjectID, u
 	return err
 }
 
-// Get by ID
+// Get subject by ID
 func (r *SubjectRepository) GetByID(ctx context.Context, id primitive.ObjectID) (*models.Subject, error) {
 	var subject models.Subject
 	err := r.Collection.FindOne(ctx, bson.M{"_id": id}).Decode(&subject)
@@ -75,8 +76,8 @@ func (r *SubjectRepository) GetByID(ctx context.Context, id primitive.ObjectID) 
 	return &subject, nil
 }
 
-// List with pagination, sorting, filtering
-func (r *SubjectRepository) List(ctx context.Context, page, limit int64, sortField, sortOrder, keyword string) ([]*models.Subject, int64, error) {
+// List subjects with pagination, sorting, filtering by keyword
+func (r *SubjectRepository) List(ctx context.Context, page, limit int64, sortField, sortOrder, keyword string, isActive *bool) ([]*models.Subject, int64, error) {
 	var subjects []*models.Subject
 
 	filter := bson.M{}
@@ -86,14 +87,16 @@ func (r *SubjectRepository) List(ctx context.Context, page, limit int64, sortFie
 			"$options": "i",
 		}
 	}
-
+	if isActive != nil {
+		filter["is_active"] = *isActive
+	}
 	findOptions := options.Find()
 	if limit > 0 {
 		findOptions.SetLimit(limit)
 		findOptions.SetSkip((page - 1) * limit)
 	}
 
-	// Default sort
+	// Default sort by created_at desc
 	sort := bson.D{{Key: "created_at", Value: -1}}
 	if sortField != "" {
 		order := -1
@@ -124,4 +127,10 @@ func (r *SubjectRepository) List(ctx context.Context, page, limit int64, sortFie
 	}
 
 	return subjects, total, nil
+}
+
+// Delete subject by ID
+func (r *SubjectRepository) Delete(ctx context.Context, id primitive.ObjectID) error {
+	_, err := r.Collection.DeleteOne(ctx, bson.M{"_id": id})
+	return err
 }

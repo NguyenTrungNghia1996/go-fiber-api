@@ -87,7 +87,7 @@ func (r *ClassroomRepository) GetAll(ctx context.Context) ([]*models.Classroom, 
 }
 
 // List with pagination, keyword search, sorting
-func (r *ClassroomRepository) List(ctx context.Context, page, limit int64, sortField, sortOrder, keyword string) ([]*models.Classroom, int64, error) {
+func (r *ClassroomRepository) List(ctx context.Context, page, limit int64, sortField, sortOrder, keyword string, isActive *bool) ([]*models.Classroom, int64, error) {
 	var classrooms []*models.Classroom
 
 	filter := bson.M{}
@@ -96,6 +96,10 @@ func (r *ClassroomRepository) List(ctx context.Context, page, limit int64, sortF
 			"$regex":   utils.NormalizeText(keyword),
 			"$options": "i",
 		}
+	}
+
+	if isActive != nil {
+		filter["is_active"] = *isActive
 	}
 
 	findOptions := options.Find()

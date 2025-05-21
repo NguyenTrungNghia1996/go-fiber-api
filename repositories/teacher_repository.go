@@ -100,7 +100,7 @@ func (r *TeacherRepository) GetAll(ctx context.Context) ([]*models.Teacher, erro
 }
 
 // List with pagination, keyword search, sorting
-func (r *TeacherRepository) List(ctx context.Context, page, limit int64, sortField, sortOrder, keyword string) ([]*models.Teacher, int64, error) {
+func (r *TeacherRepository) List(ctx context.Context, page, limit int64, sortField, sortOrder, keyword string, isActive *bool, subjectIDs []primitive.ObjectID) ([]*models.Teacher, int64, error) {
 	var teachers []*models.Teacher
 
 	filter := bson.M{}
@@ -110,13 +110,19 @@ func (r *TeacherRepository) List(ctx context.Context, page, limit int64, sortFie
 			"$options": "i",
 		}
 	}
-
+	if isActive != nil {
+		filter["is_active"] = *isActive
+	}
 	findOptions := options.Find()
 	if limit > 0 {
 		findOptions.SetLimit(limit)
 		findOptions.SetSkip((page - 1) * limit)
 	}
-
+	if len(subjectIDs) > 0 {
+		filter["subject_ids"] = bson.M{
+			"$in": subjectIDs,
+		}
+	}
 	// Sort
 	sort := bson.D{{Key: "created_at", Value: -1}}
 	if sortField != "" {
