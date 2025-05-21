@@ -53,4 +53,21 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	teachers.Get("/detail", teacherController.GetTeacher) // GET /api/teachers/detail?id=...
 	teachers.Post("/", teacherController.CreateTeacher)   // POST /api/teachers
 	teachers.Put("/", teacherController.UpdateTeacher)    // PUT /api/teachers
+
+	// Schedule routes
+	scheduleController := controllers.NewScheduleController(repositories.NewScheduleRepository(db))
+	schedules := api.Group("/schedules")
+	schedules.Get("/", scheduleController.ListSchedules)     // GET /api/schedules?page=1&limit=10&sort=created_at&order=desc&classroom_id=xxx&academic_year=2024-2025&semester=1&week=3
+	schedules.Get("/detail", scheduleController.GetSchedule) // GET /api/schedules/detail?id=xxx
+	schedules.Post("/", scheduleController.CreateSchedule)   // POST /api/schedules
+	schedules.Put("/", scheduleController.UpdateSchedule)    // PUT /api/schedules
+	schedules.Delete("/", scheduleController.DeleteSchedule) // DELETE /api/schedules?id=xxx
+
+	//Classroom routes
+	classroomController := controllers.NewClassroomController(repositories.NewClassroomRepository(db))
+	classroom := api.Group("/classroom")
+	classroom.Get("/", classroomController.ListClassrooms)         //GET /api/classroom?page=1&limit=10&sort_field=name&sort_order=asc&keyword=12A1&is_active=true
+	classroom.Get("/detail", classroomController.GetClassroomByID) // GET /api/classroom/detail?id=664c3179f5a36b935b674f9d
+	classroom.Post("/", classroomController.CreateClassroom)       //POST /api/classroom
+	classroom.Put("/", classroomController.UpdateClassroom)        // PUT /api/classroom
 }

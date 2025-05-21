@@ -33,7 +33,7 @@ func main() {
 
 	app := fiber.New()
 	app.Use(cors.New())
-	routes.Setup(app)
+	routes.Setup(app, config.DB)
 
 	// app.Use(logger.New())
 

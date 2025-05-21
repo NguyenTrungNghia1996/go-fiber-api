@@ -17,6 +17,8 @@ type Schedule struct {
 
 	Days []ScheduleDay `bson:"days" json:"days"` // Lịch theo các ngày trong tuần (Thứ 2 -> CN)
 
+	IsActive bool `bson:"is_active" json:"is_active"` // Trạng thái hoạt động của lịch (mặc định true)
+
 	CreatedAt time.Time `bson:"created_at" json:"created_at"`
 	UpdatedAt time.Time `bson:"updated_at" json:"updated_at"`
 }

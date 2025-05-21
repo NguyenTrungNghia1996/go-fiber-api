@@ -49,6 +49,10 @@ func (r *ClassroomRepository) Update(ctx context.Context, id primitive.ObjectID,
 	if updateData.Grade != 0 {
 		update["grade"] = updateData.Grade
 	}
+	if updateData.SchoolYear != "" {
+		update["school_year"] = updateData.SchoolYear
+	}
+
 	update["is_active"] = updateData.IsActive
 	update["updated_at"] = time.Now()
 
@@ -87,7 +91,7 @@ func (r *ClassroomRepository) GetAll(ctx context.Context) ([]*models.Classroom, 
 }
 
 // List with pagination, keyword search, sorting
-func (r *ClassroomRepository) List(ctx context.Context, page, limit int64, sortField, sortOrder, keyword string, isActive *bool) ([]*models.Classroom, int64, error) {
+func (r *ClassroomRepository) List(ctx context.Context, page, limit int64, sortField, sortOrder, keyword string, isActive *bool, schoolYear string) ([]*models.Classroom, int64, error) {
 	var classrooms []*models.Classroom
 
 	filter := bson.M{}
@@ -97,9 +101,11 @@ func (r *ClassroomRepository) List(ctx context.Context, page, limit int64, sortF
 			"$options": "i",
 		}
 	}
-
 	if isActive != nil {
 		filter["is_active"] = *isActive
+	}
+	if schoolYear != "" {
+		filter["school_year"] = schoolYear
 	}
 
 	findOptions := options.Find()

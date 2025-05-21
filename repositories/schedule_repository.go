@@ -29,7 +29,7 @@ func (r *ScheduleRepository) Create(ctx context.Context, schedule *models.Schedu
 	schedule.ID = primitive.NewObjectID()
 	schedule.CreatedAt = now
 	schedule.UpdatedAt = now
-
+	schedule.IsActive = true
 	_, err := r.Collection.InsertOne(ctx, schedule)
 	return err
 }
