@@ -7,7 +7,7 @@ services:
     ports:
       - 4000:4000
     environment:
-      MONGO_URI: mongodb://admin:cr969bp6x6@mongo:27017/test2?retryWrites=true&w=majority
+      MONGO_URL: mongodb://admin:cr969bp6x6@mongo:27017/test2?retryWrites=true&w=majority
       MONGO_NAME: test2
       JWT_SECRET: test
       PORT: 4000
