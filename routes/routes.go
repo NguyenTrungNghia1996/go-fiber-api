@@ -2,7 +2,6 @@ package routes
 
 import (
 	"go-fiber-api/controllers"
-	"go-fiber-api/middleware"
 	"go-fiber-api/repositories"
 
 	"github.com/gofiber/fiber/v2"
@@ -14,8 +13,8 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	app.Post("/login", controllers.Login)
 	app.Get("/test", controllers.Hello)
 	// Protected API group
-	api := app.Group("/api", middleware.Protected())
-
+	// api := app.Group("/api", middleware.Protected())
+	api := app.Group("/api")
 	api.Get("/test2", controllers.Hello)
 	// Upload URL
 	api.Put("/presigned_url", controllers.GetUploadUrl)
@@ -71,4 +70,18 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	classroom.Get("/detail", classroomController.GetClassroomByID) // GET /api/classroom/detail?id=664c3179f5a36b935b674f9d
 	classroom.Post("/", classroomController.CreateClassroom)       //POST /api/classroom
 	classroom.Put("/", classroomController.UpdateClassroom)        // PUT /api/classroom
+
+	// Invoice routes
+	invoicesGroup := api.Group("/invoices")
+	invoicesGroup.Post("/", controllers.CreateInvoice)       // POST /api/invoices
+	invoicesGroup.Get("/", controllers.GetAllInvoices)       // GET /api/invoices
+	invoicesGroup.Get("/detail", controllers.GetInvoiceByID) // GET /api/invoices/detail?id=...
+
+	// Product routes
+	productsGroup := api.Group("/products")
+	productsGroup.Post("/", controllers.CreateProduct)       // POST /api/products
+	productsGroup.Get("/", controllers.GetAllProducts)       // GET /api/products
+	productsGroup.Get("/detail", controllers.GetProductByID) // GET /api/products/detail?id=...
+	productsGroup.Put("/", controllers.UpdateProduct)        // PUT /api/products (id nằm trong body)
+	productsGroup.Delete("/", controllers.DeleteProduct)     // DELETE /api/products?id=...
 }
