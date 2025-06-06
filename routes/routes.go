@@ -71,12 +71,6 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	classroom.Post("/", classroomController.CreateClassroom)       //POST /api/classroom
 	classroom.Put("/", classroomController.UpdateClassroom)        // PUT /api/classroom
 
-	// Invoice routes
-	invoicesGroup := api.Group("/invoices")
-	invoicesGroup.Post("/", controllers.CreateInvoice)       // POST /api/invoices
-	invoicesGroup.Get("/", controllers.GetAllInvoices)       // GET /api/invoices
-	invoicesGroup.Get("/detail", controllers.GetInvoiceByID) // GET /api/invoices/detail?id=...
-
 	// Product routes
 	productsGroup := api.Group("/products")
 	productsGroup.Post("/", controllers.CreateProduct)       // POST /api/products
@@ -84,4 +78,13 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	productsGroup.Get("/detail", controllers.GetProductByID) // GET /api/products/detail?id=...
 	productsGroup.Put("/", controllers.UpdateProduct)        // PUT /api/products (id nằm trong body)
 	productsGroup.Delete("/", controllers.DeleteProduct)     // DELETE /api/products?id=...
+
+	// Invoice routes
+	invoiceController := controllers.NewInvoiceController(repositories.NewInvoiceRepository(db))
+	invoices := api.Group("/invoices")
+
+	invoices.Post("/", invoiceController.CreateInvoice)   // POST /api/invoices (body chứa invoice)
+	invoices.Get("/", invoiceController.GetInvoiceByID)   // GET /api/invoices/:id
+	invoices.Delete("/", invoiceController.DeleteInvoice) // DELETE /api/invoices/:id
+	invoices.Get("/list", invoiceController.ListInvoices)
 }
