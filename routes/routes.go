@@ -83,8 +83,14 @@ func Setup(app *fiber.App, db *mongo.Database) {
 	invoiceController := controllers.NewInvoiceController(repositories.NewInvoiceRepository(db))
 	invoices := api.Group("/invoices")
 
-	invoices.Post("/", invoiceController.CreateInvoice)   // POST /api/invoices (body chứa invoice)
-	invoices.Get("/", invoiceController.GetInvoiceByID)   // GET /api/invoices/:id
-	invoices.Delete("/", invoiceController.DeleteInvoice) // DELETE /api/invoices/:id
-	invoices.Get("/list", invoiceController.ListInvoices)
+	invoices.Post("/", invoiceController.CreateInvoice)   // POST /api/invoices
+	invoices.Get("/", invoiceController.GetInvoiceByID)   // GET /api/invoices?id=...
+	invoices.Delete("/", invoiceController.DeleteInvoice) // DELETE /api/invoices?id=...
+	invoices.Get("/list", invoiceController.ListInvoices) // GET /api/invoices/list
+
+	// 📊 Báo cáo hóa đơn
+	invoices.Get("/report/summary", invoiceController.GetInvoiceSummary) // GET /api/invoices/report/summary?from=YYYY-MM-DD&to=YYYY-MM-DD
+	invoices.Get("/report/products", invoiceController.GetProductSales)  // GET /api/invoices/report/products?from=...&to=...
+	invoices.Get("/report/grouped", invoiceController.GetGroupedSales)   // GET /api/invoices/report/grouped?from=...&to=...&group=day|month
+
 }
